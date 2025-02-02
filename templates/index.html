@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f7fa;
+        }
+        h1 {
+            color: #373;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 95%;
+            padding: 10px;
+            margin: 9px 0;
+            border: 1x solid #ccc;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+        .prediction {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #373;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Predict Your Package Based on CGPA</h1>
+    <div class="container">
+        <form id="predictForm">
+            <label for="cgpa">Enter Your CGPA:</label>
+            <input type="text" id="cgpa" name="cgpa" required placeholder="Enter your CGPA">
+            <button type="submit">Predict</button>
+        </form>
+        <div id="predictionResult" class="prediction"></div>
+        <div id="errorMessage" class="error"></div>
+    </div>
+
+    <script>
+        document.getElementById('predictForm').addEventListener('submit', function(e) {
+            e.preventDefault();  // Prevent form from submitting the traditional way
+
+            var cgpa = document.getElementById('cgpa').value;
+            var errorMessage = document.getElementById('errorMessage');
+            var predictionResult = document.getElementById('predictionResult');
+
+            // Clear previous error or result
+            errorMessage.textContent = '';
+            predictionResult.textContent = '';
+
+            // Input validation
+            if (isNaN(cgpa) || cgpa.trim() === "") {
+                errorMessage.textContent = 'Please enter a valid CGPA';
+                return;
+            }
+
+            // Send the CGPA to the server and get the prediction
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ cgpa: cgpa })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.prediction) {
+                    predictionResult.textContent = `Predicted Package: ${data.prediction}`;
+                } else {
+                    errorMessage.textContent = 'Sorry, there was an error processing your request.';
+                }
+            })
+            .catch(err => {
+                errorMessage.textContent = 'An error occurred. Please try again.';
+            });
+        });
+    </script>
+</body>
+</html>
